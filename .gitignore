@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter / Kaggle
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.log
+/kaggle/working/*
+
+# Model weights & caches
+*.gguf
+*.bin
+*.safetensors
+.cache/
+hf_cache/
+ollama_models/
+
+# Environment & IDE
+.env
+.env.local
+.vscode/
+.idea/
+.aider*
+
+# Project Planning
+PROJECTS.md
+
