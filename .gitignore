@@ -28,6 +28,9 @@ wheels/
 */.ipynb_checkpoints/*
 *.log
 /kaggle/working/*
+.runner.pid
+.runner.state
+
 
 # Model weights & caches
 *.gguf

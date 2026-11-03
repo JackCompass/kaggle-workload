@@ -11,10 +11,13 @@ Run open-weight frontier LLMs (**DeepSeek-R1 Distill**, **Qwen 2.5**, **Llama 3.
 │   └── kaggle_runner.ipynb   # Minimal starter notebook ready to paste into Kaggle
 ├── scripts/
 │   ├── install_engine.sh     # Installs Ollama / vLLM based on detected hardware
-│   └── start.sh              # Starts background daemon, health checks & pulls model
+│   ├── start.sh              # Starts background daemon, health checks & pulls model
+│   ├── status.sh             # Inspects running service, loaded models & GPU usage
+│   └── stop.sh               # Gracefully terminates running background daemons
 ├── src/
 │   ├── __init__.py
-│   └── inference.py          # OpenAI-compatible streaming client with speed benchmarking
+│   ├── inference.py          # OpenAI-compatible streaming client with speed benchmarking
+│   └── models.py             # Model registry, alias resolver, and VRAM validator
 ├── .gitignore
 ├── PROJECTS.md               # Architecture, design decisions, and roadmap
 ├── README.md                 # Usage guide
