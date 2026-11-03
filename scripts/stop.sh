@@ -4,7 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
 PID_FILE="${PROJECT_ROOT}/.runner.pid"
+TUNNEL_PID_FILE="${PROJECT_ROOT}/.tunnel.pid"
 STATE_FILE="${PROJECT_ROOT}/.runner.state"
+
 
 echo "=========================================="
 echo "Stopping LLM Runner Daemons..."
@@ -40,6 +42,26 @@ if pgrep -f "vllm.entrypoints.openai" > /dev/null 2>&1; then
     pkill -15 -f "vllm.entrypoints.openai" || true
     STOPPED=true
 fi
+
+# Stop Ngrok tunnel process
+if [[ -f "${TUNNEL_PID_FILE}" ]]; then
+    TPID="$(cat "${TUNNEL_PID_FILE}")"
+    if kill -0 "${TPID}" 2>/dev/null; then
+        echo "--> Terminating ngrok tunnel (PID: ${TPID})..."
+        kill -15 "${TPID}" 2>/dev/null || true
+        STOPPED=true
+    fi
+    rm -f "${TUNNEL_PID_FILE}"
+fi
+
+if pgrep -f "ngrok http" > /dev/null 2>&1; then
+    echo "--> Stopping remaining ngrok processes..."
+    pkill -15 -f "ngrok http" || true
+    STOPPED=true
+fi
+
+
+
 
 if [[ -f "${STATE_FILE}" ]]; then
     rm -f "${STATE_FILE}"

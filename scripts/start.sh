@@ -12,19 +12,25 @@ INPUT_MODEL="${DEFAULT_MODEL}"
 ENGINE="${DEFAULT_ENGINE}"
 PORT=""
 TENSOR_PARALLEL=""
+ENABLE_TUNNEL=false
+NGROK_TOKEN="${NGROK_AUTHTOKEN:-}"
+NGROK_DOM="${NGROK_DOMAIN:-}"
 
 show_help() {
     cat << EOF
 Usage: bash scripts/start.sh [OPTIONS]
 
 Options:
-  --model <name|alias>   Model name or alias to pull and serve (default: ${DEFAULT_MODEL})
-                         Examples: r1, r1-14b, qwen-7b, coder-7b, coder-14b, dolphin, llama-3b
-  --engine <name>        Inference engine: 'ollama' or 'vllm' (default: ${DEFAULT_ENGINE})
-  --port <port>          Custom port to bind (default: 11434 for Ollama, 8000 for vLLM)
-  --tensor-parallel <n>  Number of GPUs for tensor parallelism (vLLM only, auto-detected)
-  --list                 List all models in the curated catalog and exit
-  --help|-h              Show this help message and exit
+  --model <name|alias>      Model name or alias to pull and serve (default: ${DEFAULT_MODEL})
+                            Examples: r1, r1-14b, qwen-7b, coder-7b, coder-14b, dolphin, llama-3b
+  --engine <name>           Inference engine: 'ollama' or 'vllm' (default: ${DEFAULT_ENGINE})
+  --port <port>             Custom port to bind (default: 11434 for Ollama, 8000 for vLLM)
+  --tensor-parallel <n>     Number of GPUs for tensor parallelism (vLLM only, auto-detected)
+  --tunnel                  Enable Ngrok remote tunnel
+  --ngrok-token <token>     Ngrok authtoken (or set NGROK_AUTHTOKEN env var)
+  --ngrok-domain <domain>   Ngrok static domain (e.g. 'cricket.ngrok-free.app', or set NGROK_DOMAIN)
+  --list                    List all models in the curated catalog and exit
+  --help|-h                 Show this help message and exit
 EOF
 }
 
@@ -47,7 +53,22 @@ while [[ $# -gt 0 ]]; do
             TENSOR_PARALLEL="$2"
             shift 2
             ;;
+        --tunnel)
+            ENABLE_TUNNEL=true
+            shift 1
+            ;;
+        --ngrok-token)
+            NGROK_TOKEN="$2"
+            ENABLE_TUNNEL=true
+            shift 2
+            ;;
+        --ngrok-domain)
+            NGROK_DOM="$2"
+            ENABLE_TUNNEL=true
+            shift 2
+            ;;
         --list)
+
             python3 "${PROJECT_ROOT}/src/models.py" --list
             exit 0
             ;;
@@ -168,4 +189,17 @@ echo "🎉 Server is online and ready!"
 echo "Endpoint : http://127.0.0.1:${PORT}/v1"
 echo "Model    : ${MODEL}"
 echo "Try it   : python3 src/inference.py --model ${MODEL} --prompt \"Hello!\""
+
+# Launch Ngrok tunnel if requested or if secrets are present
+if [[ "${ENABLE_TUNNEL}" == true || -n "${NGROK_TOKEN}" ]]; then
+    if [[ -n "${NGROK_TOKEN}" ]]; then
+        echo "------------------------------------------"
+        echo "--> Launching Ngrok Static Tunnel..."
+        bash "${SCRIPT_DIR}/tunnel.sh" "${PORT}" "${NGROK_TOKEN}" "${NGROK_DOM}"
+    else
+        echo "⚠ Tunnel requested, but NGROK_AUTHTOKEN is missing."
+        echo "  Pass via --ngrok-token <token> or export NGROK_AUTHTOKEN=<token>"
+    fi
+fi
 echo "=========================================="
+

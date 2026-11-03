@@ -30,6 +30,9 @@ wheels/
 /kaggle/working/*
 .runner.pid
 .runner.state
+.tunnel.pid
+bin/
+
 
 
 # Model weights & caches
