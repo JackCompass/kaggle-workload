@@ -84,8 +84,32 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Automatically fetch Kaggle Secrets if not explicitly provided
+if [[ -z "${NGROK_TOKEN}" ]]; then
+    NGROK_TOKEN="$(python3 -c '
+try:
+    from kaggle_secrets import UserSecretsClient
+    sec = UserSecretsClient().get_secret("NGROK_AUTHTOKEN")
+    if sec: print(sec)
+except Exception:
+    pass
+' 2>/dev/null || true)"
+fi
+
+if [[ -z "${NGROK_DOM}" ]]; then
+    NGROK_DOM="$(python3 -c '
+try:
+    from kaggle_secrets import UserSecretsClient
+    sec = UserSecretsClient().get_secret("NGROK_DOMAIN")
+    if sec: print(sec)
+except Exception:
+    pass
+' 2>/dev/null || true)"
+fi
+
 # 1. Resolve model alias and check hardware
 MODEL="$(python3 "${PROJECT_ROOT}/src/models.py" --resolve "${INPUT_MODEL}")"
+
 
 echo "=========================================="
 echo "🚀 Kaggle Ephemeral LLM Runner"
