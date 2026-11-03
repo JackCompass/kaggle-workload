@@ -54,7 +54,7 @@ Run open-weight frontier LLMs (**DeepSeek-R1 Distill**, **Qwen 2.5**, **Llama 3.
 
 ```bash
 # 1. Clone repository
-!git clone https://github.com/<your-username>/retrieval-aug-gen.git /kaggle/working/llm-runner
+!git clone https://github.com/JackCompass/kaggle-workload.git /kaggle/working/llm-runner
 %cd /kaggle/working/llm-runner
 
 # 2. Start model with Ngrok tunnel
